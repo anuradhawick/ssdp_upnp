@@ -3,16 +3,16 @@ from ssdp_upnp.ssdp import Server, Client, Nat
 from ssdp_upnp.ssdp import gen_logger
 from queue import Queue
 
-logger = gen_logger('sample')
+logger = gen_logger('ssdp_upnp')
 
 if __name__ == '__main__':
     try:
         if sys.argv[1] == 'server':
-            upnpServer  = Server(8048, 'blockchain', 'main')
+            upnpServer  = Server(8048, 'anuradhawick-discovery', 'main')
             upnpServer.start()
         elif sys.argv[1] == 'client':
             queue = Queue()
-            upnpClient = Client('blockchain', 'main', queue)
+            upnpClient = Client('anuradhawick-discovery', 'main', queue)
             upnpClient.start()
             logger.info(queue.get())
         elif sys.argv[1] == 'nat':

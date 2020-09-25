@@ -7,7 +7,7 @@ import time
 import threading
 import miniupnpc
 
-logger = gen_logger('upnp')
+logger = gen_logger('ssdp_upnp')
   
 class Server(threading.Thread):
 
@@ -65,7 +65,7 @@ class Server(threading.Thread):
             local_ip = get_local_IP()
             UPNP_RESPOND = """HTTP/1.1 200 OK
             CACHE-CONTROL: max-age=1800
-            ST: private blockchain upnp 1.0
+            ST: urn:raspberry-4-anuradha
             EXT:
             LOCATION: {}_{}://{}:{}
             """.format(self.protocol, self.networkid, local_ip, self.port).replace("\n", "\r\n")
@@ -125,6 +125,7 @@ class Client(threading.Thread):
                             'ST: ssdp:all\r\n' +
                             '\r\n')
             LOCATION_REGEX = re.compile("LOCATION: {}_{}://[ ]*(.+)\r\n".format(self.protocol, self.networkid), re.IGNORECASE)
+            TARGET_REGEX = re.compile("ST: (.)*\r\n", re.IGNORECASE)
             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             sock.sendto(SSDP_DISCOVER.encode('ASCII'), (self.BCAST_IP, self.BCAST_PORT))
             sock.settimeout(3)
@@ -132,9 +133,12 @@ class Client(threading.Thread):
                 data, addr = sock.recvfrom(1024)
                 logger.debug('found data: %s', data.decode('ASCII'))
                 location_result = LOCATION_REGEX.search(data.decode('ASCII'))
-                if location_result:
+                target_result = TARGET_REGEX.search(data.decode('ASCII'))
+                
+                if location_result and target_result:
                     peer_ip, peer_port = location_result.group(1).split(":")
-                    logger.info('{}:{} is running the same protocal'.format(peer_ip, peer_port))
+                    result = target_result.group(0).split(":")[1].strip()
+                    logger.info(f'{result} {peer_ip}:{peer_port} was found')
                     self.queue.put((peer_ip, peer_port))
         except:
             sock.close()
