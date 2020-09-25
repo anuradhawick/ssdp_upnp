@@ -1,3 +1,4 @@
+import sys
 import colorlog
 import socket
 
@@ -15,8 +16,19 @@ def get_local_IP():
     get local host and ip address
     '''
     try: 
-        host_name = socket.gethostname() 
-        host_ip = socket.gethostbyname(host_name) 
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.connect(("8.8.8.8", 80))
+        host_ip = sock.getsockname()[0]
+        sock.close()
         return host_ip
     except Exception as e:
-        raise 'Unable to get Hostname and IP: {}'.format(e) 
+        raise 'Unable to get Hostname and IP: {}'.format(e)
+    
+if __name__ == '__main__':
+    assert len(sys.argv) == 2
+    
+    if sys.argv[1] == 'ip':
+        print(get_local_IP())
+    else:
+        print('Command unknown')
+        sys.exit(1)
