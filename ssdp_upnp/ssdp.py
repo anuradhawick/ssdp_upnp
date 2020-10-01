@@ -64,12 +64,12 @@ class Server(threading.Thread):
     def respond(self, addr):
         try:
             local_ip = get_local_IP()
-            UPNP_RESPOND = f"""HTTP/1.1 200 OK
+            UPNP_RESPOND = """HTTP/1.1 200 OK
             CACHE-CONTROL: max-age=1800
-            ST: urn:{self.service_name}
+            ST: urn:{}
             EXT:
             LOCATION: {}_{}://{}:{}
-            """.format(self.protocol, self.networkid, local_ip, self.port).replace("\n", "\r\n")
+            """.format(self.service_name, self.protocol, self.networkid, local_ip, self.port).replace("\n", "\r\n")
             outSock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             outSock.sendto(UPNP_RESPOND.encode('ASCII'), addr)
             logger.debug('response data: %s', UPNP_RESPOND)
