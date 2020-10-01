@@ -16,7 +16,7 @@ class Server(threading.Thread):
     IP = '0.0.0.0'
     M_SEARCH_REQ_MATCH = "M-SEARCH"
     
-    def __init__(self, port, protocal, networkid):
+    def __init__(self, port, protocal, networkid, service_name):
         '''
         port: a blockchain network port to broadcast to others
         '''
@@ -25,6 +25,7 @@ class Server(threading.Thread):
         self.port = port
         self.protocol = protocal
         self.networkid = networkid
+        self.service_name = service_name
         return
     
     def run(self):
@@ -63,9 +64,9 @@ class Server(threading.Thread):
     def respond(self, addr):
         try:
             local_ip = get_local_IP()
-            UPNP_RESPOND = """HTTP/1.1 200 OK
+            UPNP_RESPOND = f"""HTTP/1.1 200 OK
             CACHE-CONTROL: max-age=1800
-            ST: urn:raspberry-4-anuradha
+            ST: urn:{self.service_name}
             EXT:
             LOCATION: {}_{}://{}:{}
             """.format(self.protocol, self.networkid, local_ip, self.port).replace("\n", "\r\n")
@@ -137,8 +138,8 @@ class Client(threading.Thread):
                 
                 if location_result and target_result:
                     peer_ip, peer_port = location_result.group(1).split(":")
-                    result = target_result.group(0).split(":")[1].strip()
-                    logger.info(f'{result} {peer_ip}:{peer_port} was found')
+                    device_name = target_result.group(0).split(":")[2].strip()
+                    logger.info(f'{device_name} {peer_ip}:{peer_port} was found')
                     self.queue.put((peer_ip, peer_port))
         except:
             sock.close()
