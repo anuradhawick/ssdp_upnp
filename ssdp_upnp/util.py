@@ -2,13 +2,18 @@ import sys
 import colorlog
 import socket
 
+logger = None
 def gen_logger(name, level='INFO'):
-    fmt = '%(log_color)s %(levelname)8s [%(asctime)s] %(name)s-%(threadName)-15s %(message)s'
-    handler = colorlog.StreamHandler()
-    handler.setFormatter(colorlog.ColoredFormatter(fmt))
-    logger = colorlog.getLogger(name)
-    logger.addHandler(handler)
-    logger.setLevel(level)
+    global logger
+
+    if logger is None:
+        fmt = '%(log_color)s %(levelname)8s [%(asctime)s] %(name)s-%(threadName)-15s %(message)s'
+        handler = colorlog.StreamHandler()
+        handler.setFormatter(colorlog.ColoredFormatter(fmt))
+        logger = colorlog.getLogger(name)
+        logger.addHandler(handler)
+        logger.setLevel(level)
+        return logger
     return logger
 
 def get_local_IP(): 

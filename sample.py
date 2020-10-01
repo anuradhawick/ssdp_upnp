@@ -11,7 +11,7 @@ if __name__ == '__main__':
             if len(sys.argv) != 3:
                 logger.warning('need param for server name')
                 sys.exit()
-            service_name = sys.argv[1]
+            service_name = sys.argv[2]
             upnpServer  = Server(8048, 'anuradhawick-discovery', 'main', service_name)
             upnpServer.start()
         elif sys.argv[1] == 'client':
